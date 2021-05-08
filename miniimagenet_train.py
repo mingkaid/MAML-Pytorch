@@ -7,7 +7,7 @@ from    torch.optim import lr_scheduler
 import  random, sys, pickle
 import  argparse
 
-from meta import Meta
+from meta_prob import Meta
 
 
 def mean_confidence_interval(accs, confidence=0.95):
@@ -46,7 +46,7 @@ def main():
         ('linear', [args.n_way, 32 * 5 * 5])
     ]
 
-    device = torch.device('cuda')
+    device = torch.device('cpu')
     maml = Meta(args, config).to(device)
 
     tmp = filter(lambda x: x.requires_grad, maml.parameters())
@@ -55,10 +55,10 @@ def main():
     print('Total trainable tensors:', num)
 
     # batchsz here means total episode number
-    mini = MiniImagenet('/home/i/tmp/MAML-Pytorch/miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
+    mini = MiniImagenet('/workspace/MAML-Pytorch/miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
                         k_query=args.k_qry,
                         batchsz=10000, resize=args.imgsz)
-    mini_test = MiniImagenet('/home/i/tmp/MAML-Pytorch/miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
+    mini_test = MiniImagenet('/workspace/MAML-Pytorch/miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
                              k_query=args.k_qry,
                              batchsz=100, resize=args.imgsz)
 
@@ -72,7 +72,7 @@ def main():
 
             accs = maml(x_spt, y_spt, x_qry, y_qry)
 
-            if step % 30 == 0:
+            if step % 10 == 0:
                 print('step:', step, '\ttraining acc:', accs)
 
             if step % 500 == 0:  # evaluation
