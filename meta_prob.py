@@ -305,7 +305,7 @@ class Meta(nn.Module):
         loss_q = losses_q[-1] / task_num
         kl = kls / task_num
         # print(loss_q, kl)
-        loss_all = loss_q + kl
+        loss_all = loss_q + 0.05 * kl
         # print('Loss:', loss_q.item(), kl.item(), end='\r')
 
         # optimize theta parameters
