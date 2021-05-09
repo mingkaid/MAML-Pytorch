@@ -75,7 +75,7 @@ def main():
             if step % 50 == 0:
                 print('step:', step, '\ttraining acc:', accs)
 
-            if step % 100 == 0:  # evaluation
+            if step % 250 == 0:  # evaluation
                 db_test = DataLoader(mini_test, 1, shuffle=True, num_workers=1, pin_memory=True)
                 accs_all_test = []
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     argparser.add_argument('--k_qry', type=int, help='k shot for query set', default=15)
     argparser.add_argument('--imgsz', type=int, help='imgsz', default=84)
     argparser.add_argument('--imgc', type=int, help='imgc', default=3)
-    argparser.add_argument('--task_num', type=int, help='meta batch size, namely task num', default=4)
+    argparser.add_argument('--task_num', type=int, help='meta batch size, namely task num', default=12)
     argparser.add_argument('--meta_lr', type=float, help='meta-level outer learning rate', default=1e-3)
     argparser.add_argument('--update_lr', type=float, help='task-level inner update learning rate', default=0.01)
     argparser.add_argument('--update_step', type=int, help='task-level inner update steps', default=5)

@@ -31,9 +31,11 @@ class Meta(nn.Module):
         self.task_num = args.task_num
         self.update_step = args.update_step
         self.update_step_test = args.update_step_test
-        self.log_noise_init_q = 2 * np.log(0.15)
-        self.log_noise_init_p = self.log_noise_init_q
-        self.log_gamma_init = 2 * np.log(self.update_lr)
+        
+#         self.log_noise_init_q = np.log(0.01)
+#         self.log_noise_init_p = self.log_noise_init_q
+        self.log_noise_init = -5
+        self.log_gamma_init = np.log(self.update_lr)
 
 
         self.net = Learner(config, args.imgc, args.imgsz)
@@ -47,119 +49,119 @@ class Meta(nn.Module):
         for i, (name, param) in enumerate(config):
             if name is 'conv2d':
                 # [ch_out, ch_in, kernelsz, kernelsz]
-                g_q = nn.Parameter(torch.ones(*param[:4]) * self.log_gamma_init)
+                g_q = nn.Parameter(torch.rand(*param[:4]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_q, self.update_lr)
                 self.log_gamma_q.append(g_q)
                 # [ch_out]
-                self.log_gamma_q.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_q.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out, ch_in, kernelsz, kernelsz]
-                g_p = nn.Parameter(torch.ones(*param[:4]) * self.update_lr)
+                g_p = nn.Parameter(torch.rand(*param[:4]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_p, self.update_lr)
                 self.log_gamma_p.append(g_p)
                 # [ch_out]
-                self.log_gamma_p.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_p.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out, ch_in, kernelsz, kernelsz]
-                v = nn.Parameter(torch.ones(*param[:4]) * self.log_noise_init_q)
+                v = nn.Parameter(torch.rand(*param[:4]) + self.log_noise_init)
                 # torch.nn.init.constant_(v, 1)
                 self.log_v_q.append(v)
                 # [ch_out]
-                self.log_v_q.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_q))
+                self.log_v_q.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
                 
                 # [ch_out, ch_in, kernelsz, kernelsz]
-                s = nn.Parameter(torch.ones(*param[:4]) * self.log_noise_init_p)
+                s = nn.Parameter(torch.rand(*param[:4]) + self.log_noise_init)
                 # torch.nn.init.constant_(s, 1)
                 self.log_sigma2.append(s)
                 # [ch_out]
-                self.log_sigma2.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_p))
+                self.log_sigma2.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
 
             elif name is 'convt2d':
                 # [ch_in, ch_out, kernelsz, kernelsz, stride, padding]
-                g_q = nn.Parameter(torch.ones(*param[:4]) * self.update_lr)
+                g_q = nn.Parameter(torch.rand(*param[:4]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_q, self.update_lr)
                 self.log_gamma_q.append(g_q)
                 # [ch_in, ch_out]
-                self.log_gamma_q.append(nn.Parameter(torch.ones(param[1]) * self.log_gamma_init))
+                self.log_gamma_q.append(nn.Parameter(torch.rand(param[1]) + self.log_gamma_init))
                 
                 # [ch_in, ch_out, kernelsz, kernelsz, stride, padding]
-                g_p = nn.Parameter(torch.ones(*param[:4]) * self.update_lr)
+                g_p = nn.Parameter(torch.rand(*param[:4]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_p, self.update_lr)
                 self.log_gamma_p.append(g_p)
                 # [ch_out]
-                self.log_gamma_p.append(nn.Parameter(torch.ones(param[1]) * self.log_gamma_init))
+                self.log_gamma_p.append(nn.Parameter(torch.rand(param[1]) + self.log_gamma_init))
                 
                 # [ch_in, ch_out, kernelsz, kernelsz, stride, padding]
-                v = nn.Parameter(torch.ones(*param[:4]) * self.log_noise_init_q)
+                v = nn.Parameter(torch.rand(*param[:4]) + self.log_noise_init)
                 # torch.nn.init.constant_(v, 1)
                 self.log_v_q.append(v)
                 # [ch_out]
-                self.log_v_q.append(nn.Parameter(torch.ones(param[1]) * self.log_noise_init_q))
+                self.log_v_q.append(nn.Parameter(torch.rand(param[1]) + self.log_noise_init))
                 
                 # [ch_in, ch_out, kernelsz, kernelsz, stride, padding]
-                s = nn.Parameter(torch.ones(*param[:4]) * self.log_noise_init_p)
+                s = nn.Parameter(torch.rand(*param[:4]) + self.log_noise_init)
                 # torch.nn.init.constant_(s, 1)
                 self.log_sigma2.append(s)
                 # [ch_out]
-                self.log_sigma2.append(nn.Parameter(torch.ones(param[1]) * self.log_noise_init_p))
+                self.log_sigma2.append(nn.Parameter(torch.rand(param[1]) + self.log_noise_init))
 
             elif name is 'linear':
                 # [ch_out, ch_in]
-                g_q = nn.Parameter(torch.ones(*param) * self.update_lr)
+                g_q = nn.Parameter(torch.rand(*param) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_q, self.update_lr)
                 self.log_gamma_q.append(g_q)
                 # [ch_in, ch_out]
-                self.log_gamma_q.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_q.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out, ch_in]
-                g_p = nn.Parameter(torch.ones(*param) * self.update_lr)
+                g_p = nn.Parameter(torch.rand(*param) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_p, self.update_lr)
                 self.log_gamma_p.append(g_p)
                 # [ch_in, ch_out]
-                self.log_gamma_p.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_p.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out, ch_in]
-                v = nn.Parameter(torch.ones(*param) * self.log_noise_init_q)
+                v = nn.Parameter(torch.rand(*param) + self.log_noise_init)
                 # torch.nn.init.constant_(v, 1)
                 self.log_v_q.append(v)
                 # [ch_in, ch_out]
-                self.log_v_q.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_q))
+                self.log_v_q.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
                 
                 # [ch_out, ch_in]
-                s = nn.Parameter(torch.ones(*param) * self.log_noise_init_p)
+                s = nn.Parameter(torch.rand(*param) + self.log_noise_init)
                 # torch.nn.init.constant_(s, 1)
                 self.log_sigma2.append(s)
                 # [ch_in, ch_out]
-                self.log_sigma2.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_p))
+                self.log_sigma2.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
 
             elif name is 'bn':
                 # [ch_out]
-                g_q = nn.Parameter(torch.ones(param[0]) * self.update_lr)
+                g_q = nn.Parameter(torch.rand(param[0]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_q, self.update_lr)
                 self.log_gamma_q.append(g_q)
                 # [ch_out]
-                self.log_gamma_q.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_q.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out]
-                g_p = nn.Parameter(torch.ones(param[0]) * self.update_lr)
+                g_p = nn.Parameter(torch.rand(param[0]) + self.log_gamma_init)
                 # torch.nn.init.constant_(g_p, self.update_lr)
                 self.log_gamma_p.append(g_p)
                 # [ch_out]
-                self.log_gamma_p.append(nn.Parameter(torch.ones(param[0]) * self.log_gamma_init))
+                self.log_gamma_p.append(nn.Parameter(torch.rand(param[0]) + self.log_gamma_init))
                 
                 # [ch_out]
-                v = nn.Parameter(torch.ones(param[0]) * self.log_noise_init_q)
+                v = nn.Parameter(torch.rand(param[0]) + self.log_noise_init)
                 # torch.nn.init.constant_(v, 1)
                 self.log_v_q.append(v)
                 # [ch_out]
-                self.log_v_q.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_q))
+                self.log_v_q.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
                 
                 # [ch_out]
-                s = nn.Parameter(torch.ones(param[0]) * self.log_noise_init_p)
+                s = nn.Parameter(torch.rand(param[0]) + self.log_noise_init)
                 # torch.nn.init.constant_(s, 1)
                 self.log_sigma2.append(s)
                 # [ch_out]
-                self.log_sigma2.append(nn.Parameter(torch.ones(param[0]) * self.log_noise_init_p))
+                self.log_sigma2.append(nn.Parameter(torch.rand(param[0]) + self.log_noise_init))
 
 
             elif name in ['tanh', 'relu', 'upsample', 'avg_pool2d', 'max_pool2d',
@@ -220,10 +222,10 @@ class Meta(nn.Module):
             loss = F.cross_entropy(logits, y_qry[i])
             grad = torch.autograd.grad(loss, self.net.parameters())
             # 1.5 Sample theta from the updated variational distribution
-            mu_theta_test = list(map(lambda p: p[0] - torch.exp(0.5 * p[1]) * p[2],
+            mu_theta_test = list(map(lambda p: p[0] - torch.exp(p[1]) * p[2],
                                      zip(self.net.parameters(), self.log_gamma_q, grad)))
             # theta = mu_theta_test
-            theta = list(map(lambda p: p[0] + torch.exp(0.5 * p[1]) * torch.randn(p[1].shape).type_as(p[1]),
+            theta = list(map(lambda p: p[0] + torch.exp(0.5 * p[1]) * torch.randn_like(p[1], device=p[1].device),
                              zip(mu_theta_test, self.log_v_q)))
             
             # 2. run the i-th task with theta and compute loss for k=0
@@ -278,7 +280,7 @@ class Meta(nn.Module):
             logits = self.net(x_spt[i], vars=None, bn_training=True)
             loss = F.cross_entropy(logits, y_spt[i])
             grad = torch.autograd.grad(loss, self.net.parameters())
-            mu_theta_tr = list(map(lambda p: p[0] - torch.exp(0.5 * p[1]) * p[2],
+            mu_theta_tr = list(map(lambda p: p[0] - torch.exp(p[1]) * p[2],
                                    zip(self.net.parameters(), self.log_gamma_p, grad)))
             
             # 2. Compute the KL divergence between theta|tr and theta|test
@@ -304,7 +306,7 @@ class Meta(nn.Module):
         kl = kls / task_num
         # print(loss_q, kl)
         loss_all = loss_q + kl
-        print('Loss:', loss_q.item(), kl.item(), end='\r')
+        # print('Loss:', loss_q.item(), kl.item(), end='\r')
 
         # optimize theta parameters
         self.meta_optim.zero_grad()
@@ -359,11 +361,11 @@ class Meta(nn.Module):
         logits = net(x_spt)
         loss = F.cross_entropy(logits, y_spt)
         grad = torch.autograd.grad(loss, net.parameters())
-        mu_theta_tr = list(map(lambda p: p[0] - torch.exp(0.5 * p[1]) * p[2],
+        mu_theta_tr = list(map(lambda p: p[0] - torch.exp(p[1]) * p[2],
                                zip(net.parameters(), self.log_gamma_p, grad)))
         theta = mu_theta_tr
-#         theta = list(map(lambda p: p[0] + torch.exp(0.5 * p[1]) * torch.randn(p[1].shape).type_as(p[1]),
-#                          zip(mu_theta_tr, self.log_sigma2)))
+        theta = list(map(lambda p: p[0] + torch.exp(0.5 * p[1]) * torch.randn_like(p[1], device=p[1].device),
+                         zip(mu_theta_tr, self.log_sigma2)))
 
         # 1. run the i-th task and compute loss for k=0
         logits = net(x_spt, theta)
