@@ -132,6 +132,7 @@ class Meta(nn.Module):
         # end of all tasks
         # sum over all losses on query set across all tasks
         loss_q = losses_q[-1] / task_num
+        print('Loss:', loss_q.item(), end='\r')
 
         # optimize theta parameters
         self.meta_optim.zero_grad()

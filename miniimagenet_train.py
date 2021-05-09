@@ -46,7 +46,7 @@ def main():
         ('linear', [args.n_way, 32 * 5 * 5])
     ]
 
-    device = torch.device('cpu')
+    device = torch.device('cuda')
     maml = Meta(args, config).to(device)
 
     tmp = filter(lambda x: x.requires_grad, maml.parameters())
@@ -55,10 +55,10 @@ def main():
     print('Total trainable tensors:', num)
 
     # batchsz here means total episode number
-    mini = MiniImagenet('/workspace/MAML-Pytorch/miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
+    mini = MiniImagenet('./miniimagenet/', mode='train', n_way=args.n_way, k_shot=args.k_spt,
                         k_query=args.k_qry,
                         batchsz=10000, resize=args.imgsz)
-    mini_test = MiniImagenet('/workspace/MAML-Pytorch/miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
+    mini_test = MiniImagenet('./miniimagenet/', mode='test', n_way=args.n_way, k_shot=args.k_spt,
                              k_query=args.k_qry,
                              batchsz=100, resize=args.imgsz)
 
@@ -72,10 +72,10 @@ def main():
 
             accs = maml(x_spt, y_spt, x_qry, y_qry)
 
-            if step % 10 == 0:
+            if step % 50 == 0:
                 print('step:', step, '\ttraining acc:', accs)
 
-            if step % 500 == 0:  # evaluation
+            if step % 100 == 0:  # evaluation
                 db_test = DataLoader(mini_test, 1, shuffle=True, num_workers=1, pin_memory=True)
                 accs_all_test = []
 
